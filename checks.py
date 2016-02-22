@@ -33,31 +33,31 @@ def dcid(hostname):
     global trapd
     if re.search(r'.*\.(mon2|mgmt2)\..*', hostname):
 	dc = '2'
-	trapd = ['172.16.26.230','fm-dn01a.c0.mon2.adsk','172.16.26.231','fm-dn01b.c0.mon2.adsk','172.25.185.242','fm-sn01a.c0.mon2.adsk','172.25.185.243','fm-sn01b.c0.mon2.adsk']
+	trapd = ['172.16.26.230','fm-dn01a.c0.mon2.example.com','172.16.26.231','fm-dn01b.c0.mon2.example.com','172.25.185.242','fm-sn01a.c0.mon2.example.com','172.25.185.243','fm-sn01b.c0.mon2.example.com']
     elif re.search(r'.*\.(mon4|mgmt4)\..*', hostname):
 	dc = '4'
-	trapd = ['172.16.29.230','bm-dn01a.mon4.adsk','172.16.29.231','bm-dn01b.mon4.adsk','172.26.185.242','bm-sn01a.mon4.adsk','172.26.185.243','bm-sn01b.mon4.adsk']
+	trapd = ['172.16.29.230','bm-dn01a.mon4.example.com','172.16.29.231','bm-dn01b.mon4.example.com','172.26.185.242','bm-sn01a.mon4.example.com','172.26.185.243','bm-sn01b.mon4.example.com']
     elif re.search(r'.*\.(mon5|mgmt5)\..*', hostname):
 	dc = '5'
-	trapd = ['172.16.32.210','montraps5001a.mgmt5.adsk','172.16.32.211','montraps5001b.mgmt5.adsk']
+	trapd = ['172.16.32.210','montraps5001a.mgmt5.example.com','172.16.32.211','montraps5001b.mgmt5.example.com']
     elif re.search(r'.*\.(mon6|mgmt6)\..*', hostname):
         dc = '6'
-	trapd = ['172.16.35.210','montraps6001a.mgmt6.adsk','172.16.35.211','montraps6001b.mgmt6.adsk']
+	trapd = ['172.16.35.210','montraps6001a.mgmt6.example.com','172.16.35.211','montraps6001b.mgmt6.example.com']
     elif re.search(r'.*\.(mon7|mgmt7)\..*', hostname):
         dc = '7'
-	trapd = ['172.16.38.230','dn7001a.mgmt7.adsk','172.16.38.231','dn7001b.mgmt7.adsk','172.18.185.242','sn7001a.mon7.adsk','172.18.185.243','sn7001b.mon7.adsk']
+	trapd = ['172.16.38.230','dn7001a.mgmt7.example.com','172.16.38.231','dn7001b.mgmt7.example.com','172.18.185.242','sn7001a.mon7.example.com','172.18.185.243','sn7001b.mon7.example.com']
     elif re.search(r'.*\.mon10\..*', hostname):
         dc = '10'
-	trapd = ['172.16.49.22','montraps10001a.mon10.adsk','172.16.49.23','montraps10001b.mon10.adsk']
+	trapd = ['172.16.49.22','montraps10001a.mon10.example.com','172.16.49.23','montraps10001b.mon10.example.com']
     elif re.search(r'.*\.mon11\..*', hostname):
         dc = '11'
-	trapd = ['172.16.46.28','montraps11001a.mon11.adsk','172.16.46.29','montraps11001b.mon11.adsk']
+	trapd = ['172.16.46.28','montraps11001a.mon11.example.com','172.16.46.29','montraps11001b.mon11.example.com']
     elif re.search(r'.*\.mon20\..*', hostname):
         dc = '20'
-	trapd = ['172.16.43.149','montraps20001a.mon20.adsk','172.16.43.150','montraps20001b.mon20.adsk']
+	trapd = ['172.16.43.149','montraps20001a.mon20.example.com','172.16.43.150','montraps20001b.mon20.example.com']
     elif re.search(r'.*\.mon21\..*', hostname):
         dc = '21'
-	trapd = ['172.16.44.154','montraps21001a.mon21.adsk','172.16.44.155','montraps21001b.mon21.adsk']
+	trapd = ['172.16.44.154','montraps21001a.mon21.example.com','172.16.44.155','montraps21001b.mon21.example.com']
     else:
     	print("DC not known")
 	exit
@@ -140,7 +140,7 @@ def sysedgeconfig(ip):
 # Function to check if the system is being monitored in EMC Smarts or not, it utilises a call to another short script that checks this.
 def smartscheck(ip):
     global in_smarts;in_smarts = False
-    cmd5 = 'ssh -i /home/hitesha/id_dsa gn11001a.mon11.adsk "/opt/InCharge/SAM/smarts/bin/sm_perl /opt/smarts-scripts/findIP/findip.pl --ip=' + ip + ' --config=/opt/smarts-scripts/findIP/config.txt | grep exists " '
+    cmd5 = 'ssh -i /home/hitesha/id_dsa gn11001a.mon11.example.com "/opt/InCharge/SAM/smarts/bin/sm_perl /opt/smarts-scripts/findIP/findip.pl --ip=' + ip + ' --config=/opt/smarts-scripts/findIP/config.txt | grep exists " '
     try:
         cmd5op = subprocess.check_output(shlex.split(cmd5)).find('true')
     except subprocess.CalledProcessError:
@@ -155,14 +155,14 @@ def smartscheck(ip):
 # Function to check if the hosts is under Auditron(an in house monitoring tool that takes care of process monitoring.
 def auditron(ip):
     global audit_config;audit_config = False
-    cmd6 = 'ssh -i /home/hitesha/id_dsa jump11001a.mon11.adsk "/home/tmyra/ops_tools/procmon/procmon-showall2.sh ' + ip + '"'
+    cmd6 = 'ssh -i /home/hitesha/id_dsa jump11001a.mon11.example.com "/home/tmyra/ops_tools/procmon/procmon-showall2.sh ' + ip + '"'
     cmd6op = subprocess.check_output(shlex.split(cmd6)).splitlines()
     return cmd6op
 
 # Function to check if the host IP is being monitored in CA eHealth systems, basically meant for Hardware and Filesystems, partition monitoring. this is done by checking the mysql DB for existence of elements & getting a count of those elements for the host.
 def ehealth(ip):
     global in_ehealth;in_ehealth = False
-    cmd7 = 'mysql -h miscdb5001a.mgmt5.adsk -u \'EhAutomation\' -p\'EhAutomation\' EhealthAutomation --skip-column-names -e "select count(name) from ElementsDatabase where ipAddr like \'' + ip + ':%\';"'
+    cmd7 = 'mysql -h miscdb5001a.mgmt5.example.com -u \'EhAutomation\' -p\'EhAutomation\' EhealthAutomation --skip-column-names -e "select count(name) from ElementsDatabase where ipAddr like \'' + ip + ':%\';"'
     cmd7op = subprocess.check_output(shlex.split(cmd7)).strip()
     if cmd7op == '0':
         print('{} is not in Ehealth').format(ip)
