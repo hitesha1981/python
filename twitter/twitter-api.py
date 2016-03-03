@@ -7,10 +7,11 @@ import sys
 import config
 import urllib
 """
-Install python oauth2 module
+1) Install python oauth2 module
 #sudo pip install oauth2
-Put your consumer/access key and secret in config.py
-Check output in twitter-response.log
+2) Get your consumer/access key and secret from https://apps.twitter.com/
+3) Put your consumer/access key and secret in config.py
+4) Check output in twitter-response.log, which i have saved for a test run
 """
 
 #Setting output encoding to utf8, for displaying tweets with unicode characters on console
@@ -43,8 +44,8 @@ class Twitter():
 
 	def mytweets(self,show=0,force=0):
 		## Twitter api link to get our tweets
-		### "https://api.twitter.com/1.1/statuses/user_timeline.json?""
-		#force = force  ## To reload the twitter feed 
+		### "https://api.twitter.com/1.1/statuses/user_timeline.json?"
+		#force  ## To reload the twitter feed after you add or remove tweets
 		endpoint = "https://api.twitter.com/1.1/statuses/user_timeline.json?"
 		encode_message =  urllib.urlencode({'screen_name':self.screenname})
 		final_endpoint = endpoint + encode_message
@@ -59,9 +60,7 @@ class Twitter():
 		return self.mytweets_response, self.my_tweets	
 
 	def findtweet(self,findstring,delete=0):
-		#findstring = findstring
-		#delete = delete
-		## You first need to call the mytweets method
+		## You first need to call the mytweets method, if twitter feed is not already cached
 		#self.mytweets()
 		if self.my_tweets == 0:
 		## Call the mytweets method
@@ -81,7 +80,6 @@ class Twitter():
 					delete_response, delete_data = self.connect.request(final_destroy_endpoint,'POST')
 					#print delete_response
 					#print delete_data	
-		#delete = 0	
 
 	def post(self,message):
 		#message = message
@@ -103,10 +101,10 @@ class Twitter():
 		#	print "Error in posting , as :%s" %(self.post_data['errors'][0]['message'])
 				
 	def deletetweet(self,findstring):
-		# Call the find tweet method , with delete optional parameter
+		# Call the find tweet method , with delete=1 optional parameter
 		print "\nTrying to find the tweet containing text: %s" %(findstring)
 		self.findtweet(findstring,delete=1)
-		## Now update the tweet feed
+		## Now update the tweet feed, calling the mytweets method
 		self.mytweets(force=1)
 
 	def othertweet(self,screenname):
@@ -114,7 +112,6 @@ class Twitter():
 
 if __name__ == '__main__':
 	##Create a Twitter object for user hitesh , get config details from config.py
-	#hitesh = Twitter(config.CONSUMER_KEY,config.CONSUMER_SECRET,config.ACCESS_KEY,config.ACCESS_SECRET,screenname='hiteshagrawal81')
 	hitesh = Twitter(config.CONSUMER_KEY,config.CONSUMER_SECRET,config.ACCESS_KEY,config.ACCESS_SECRET)
 	hitesh.mytweets(show=1)	## To show your twitter feed
 	message = "This is a new tweet containing keyword python"
@@ -137,7 +134,4 @@ naresh.post("This is posting as naresh")
 naresh.mytweets(show=1)
 naresh.deletetweet("tweet")
 hitesh.mytweets(show=1)	
-
-
-
 
