@@ -66,7 +66,7 @@ class Twitter():
 		## Call the mytweets method
 			self.mytweets()
 		for tweet_find in self.my_tweets:
-			if tweet_find['text'].find(findstring.lower()) != -1:
+			if tweet_find['text'].lower().find(findstring.lower()) != -1:
 				print "\nFound the tweet containing text: %s" %(findstring)
 				#print "The tweet id is : %s" %(self.tweet_find['id'])
 				print "The tweet text is : %s" %(tweet_find['text'])
@@ -82,7 +82,10 @@ class Twitter():
 					#print delete_data	
 
 	def post(self,message):
-		#message = message
+		## Truncate incoming messages to 140 character
+		if len(message) > 140:
+			print "Truncating message to 140 characters"
+			message = message[:140]
 		post_endpoint = "https://api.twitter.com/1.1/statuses/update.json"
 		encode_message =  urllib.urlencode({'status':message})
 		## Now actual posting to twitter
@@ -111,10 +114,10 @@ class Twitter():
 		pass	
 
 if __name__ == '__main__':
-	##Create a Twitter object for user hitesh , get config details from config.py
+	#Create a Twitter object for user hitesh , get config details from config.py
 	hitesh = Twitter(config.CONSUMER_KEY,config.CONSUMER_SECRET,config.ACCESS_KEY,config.ACCESS_SECRET)
 	hitesh.mytweets(show=1)	## To show your twitter feed
-	message = "This is a new tweet containing keyword python"
+	message = "This is a new tweet containing keyword Python"
 	message2 = "This is a new tweet containing keyword python2"
 	hitesh.post(message)
 	hitesh.post(message2)
