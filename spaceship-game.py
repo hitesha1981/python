@@ -1,4 +1,4 @@
-# implementation of Spaceship - program 
+# implementation of Spaceship game - program 
 # Author : hitesh agrawal
 # Email: hitesha1981@gmail.com
 ## Please copy the below code to http://www.codeskulptor.org/
