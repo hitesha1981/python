@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>News</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 0 4px;
+        }
+
+        .pagination .active {
+            background: #1f2937;
+            color: white;
+        }
+        .ticker-track {
+        animation: scroll-left 35s linear infinite;
+        }
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .change.up {
+            color: #16a34a; /* green */
+        }
+        .change.down {
+            color: #dc2626; /* red */
+        }
+        #crypto-ticker-bar {
+            height: 40px; 
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        #crypto-ticker-bar .ticker-track {
+            display: inline-flex;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+        .price-item {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body class="bg-white text-black">
+    <!-- Header -->
+    <nav class="fixed w-full z-50 bg-white bg-opacity-90 shadow">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="/" class="text-xl font-bold">Business News</a>
+                <div class="space-x-6 flex flex-row">
+                    <a href="/" class="hover:text-gray-600 transition-colors">Home</a>
+                    <a href="/" class="hover:text-gray-600 transition-colors">About</a>
+                    <a href="/" class="hover:text-gray-600 transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Crypto Price Ticker -->
+    <div id="crypto-ticker-bar"
+        class="fixed top-16 w-full bg-gray-100 text-black overflow-hidden whitespace-nowrap border-b border-gray-300 z-40">
+        <div class="flex items-center gap-8 py-2 px-4 ticker-track">
+            <div class="price-item" data-symbol="bitcoin"><span class="font-semibold">BTC</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="ethereum"><span class="font-semibold">ETH</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="solana"><span class="font-semibold">SOL</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="bnb"><span class="font-semibold">BNB</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="xrp"><span class="font-semibold">XRP</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="doge"><span class="font-semibold">DOGE</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="cardano"><span class="font-semibold">ADA</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="avalanche"><span class="font-semibold">AVAX</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="chainlink"><span class="font-semibold">LINK</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="litecoin"><span class="font-semibold">LTC</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="polygon"><span class="font-semibold">MATIC</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="tron"><span class="font-semibold">TRX</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="internetcomp"><span class="font-semibold">ICP</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="near"><span class="font-semibold">NEAR</span> <span class="price">--</span> <span class="change"></span></div>
+            <div class="price-item" data-symbol="aptos"><span class="font-semibold">APT</span> <span class="price">--</span> <span class="change"></span></div>
+        </div>
+    </div>
+
+
+    <!-- Hero -->
+    <main class="pt-24">
+        <div
+            class="relative w-full h-[500px] bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05')]">
+            <div class="absolute inset-0 bg-black/70 flex items-center justify-center">
+                <div class="text-center text-white">
+                    <h1 class="text-5xl font-bold mb-4">Welcome to Business News</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles -->
+        <div class="container mx-auto px-4 py-12 max-w-4xl" id="articles-container"></div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center pagination" id="pagination-container"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white py-12 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="text-gray-600 hover:text-gray-900">Twitter</a>
+                <a href="#" class="text-gray-600 hover:text-gray-900">Facebook</a>
+                <a href="#" class="text-gray-600 hover:text-gray-900">GitHub</a>
+            </div>
+            <p class="text-gray-600">Copyright © Business News 2025</p>
+        </div>
+    </footer>
+
+   <!-- Adding ticker - hitesh -->
+    <script>
+        (function () {
+            function updateTicker() {
+                fetch("/api/crypto/prices/")
+                    .then(r => r.json())
+                    .then(data => {
+                        Object.keys(data).forEach(function (key) {
+                            var item = document.querySelector('.price-item[data-symbol="' + key + '"]');
+                            if (!item || !data[key] || data[key].error) return;
+
+                            var price = item.querySelector(".price");
+                            var change = item.querySelector(".change");
+
+                            price.textContent = "$" + data[key].price.toLocaleString();
+
+                            var pct = data[key].change;
+                            change.textContent = pct.toFixed(2) + "%";
+
+                            change.classList.remove("up", "down");
+                            change.classList.add(pct >= 0 ? "up" : "down");
+                        });
+                    })
+                    .catch(() => {});
+
+                setTimeout(updateTicker, 15000); // refresh every 15s
+            }
+
+            // Clone scrolling content for seamless loop
+            document.addEventListener("DOMContentLoaded", function () {
+                var bar = document.querySelector("#crypto-ticker-bar .ticker-track");
+                if (bar) {
+                    var clone = bar.cloneNode(true);
+                    bar.parentNode.appendChild(clone);
+                }
+                updateTicker();
+            });
+        })();
+    </script>
+
+
+    <script>
+        const PAGE_LIMIT = 5;
+        let totalArticles = [];
+        let currentPage = 0;
+
+        async function fetchArticles() {
+            try {
+                const res = await fetch('/api/news');
+                const data = await res.json();
+                totalArticles = data || [];
+                renderPage();
+            } catch (e) {
+                console.error('Failed to load articles', e);
+            }
+        }
+
+        function renderPage() {
+            const start = currentPage * PAGE_LIMIT;
+            const end = start + PAGE_LIMIT;
+            const articles = totalArticles.slice(start, end);
+            const container = document.getElementById('articles-container');
+            container.innerHTML = '';
+
+            const convertTime = (timestamp) => moment.unix(Number(timestamp)).local().format('YYYY-MM-DD HH:mm:ss');
+            const splitCategory = (category) => _.split(category, '|');
+
+            articles.forEach((article, index) => {
+                const categories = splitCategory(article.category)
+                const view_categories = categories.map(item =>
+                    `<div class="bg-blue-100 rounded-xl px-4 py-1 text-sm">${item}</div>`
+                ).join('');
+
+                container.innerHTML += `
+          <article class="mb-12 ${index !== articles.length - 1 ? 'pb-12 border-b border-gray-200' : ''}">
+            <div class="flex flex-col md:flex-row gap-4">
+              <img src="${article.image_url}" class="w-full md:w-64 md:h-64 mx-auto" alt="news" />
+              <div>
+                <h2 class="text-4xl font-bold mb-2 text-black hover:text-[#0085A1] cursor-pointer">
+                  <a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a>
+                </h2>
+                <div class="text-lg">
+                  ${article.body.length > 255
+                        ? article.body.slice(0, 200).split(' ').slice(0, -1).join(' ') + '...'
+                        : article.body}
+                </div>
+                <div class="text-gray-500 py-2">
+                  ${convertTime(article.published_on)}
+                </div>
+                <div class="flex flex-row flex-wrap gap-2 text-blue-600">
+                  ${view_categories}
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+            });
+
+            renderPagination();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+
+            const pageCount = Math.ceil(totalArticles.length / PAGE_LIMIT);
+            const maxPagesShown = 5;
+            const half = Math.floor(maxPagesShown / 2);
+            let startPage = Math.max(currentPage - half, 0);
+            let endPage = Math.min(startPage + maxPagesShown, pageCount);
+
+            if (endPage - startPage < maxPagesShown) {
+                startPage = Math.max(endPage - maxPagesShown, 0);
+            }
+
+            const makeButton = (label, page, disabled = false) => {
+                const btn = document.createElement('button');
+                btn.innerText = label;
+                btn.className = `px-3 py-1 border border-gray-300 rounded ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+                if (!disabled) {
+                    btn.onclick = () => {
+                        currentPage = page;
+                        renderPage();
+                    };
+                }
+                return btn;
+            };
+
+            // Previous
+            container.appendChild(makeButton('< previous', currentPage - 1, currentPage === 0));
+
+            // Dots before
+            if (startPage > 0) {
+                container.appendChild(makeButton('1', 0));
+                if (startPage > 1) {
+                    const dots = document.createElement('span');
+                    dots.innerText = '...';
+                    dots.className = 'px-2';
+                    container.appendChild(dots);
+                }
+            }
+
+            // Pages
+            for (let i = startPage; i < endPage; i++) {
+                const btn = makeButton(i + 1, i);
+                if (i === currentPage) {
+                    btn.classList.add('bg-gray-800', 'text-white');
+                }
+                container.appendChild(btn);
+            }
+
+            // Dots after
+            if (endPage < pageCount) {
+                if (endPage < pageCount - 1) {
+                    const dots = document.createElement('span');
+                    dots.innerText = '...';
+                    dots.className = 'px-2';
+                    container.appendChild(dots);
+                }
+                container.appendChild(makeButton(pageCount, pageCount - 1));
+            }
+
+            // Next
+            container.appendChild(makeButton('next >', currentPage + 1, currentPage === pageCount - 1));
+        }
+
+        fetchArticles();
+    </script>
+</body>
+</html>
