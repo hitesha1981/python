@@ -23,6 +23,9 @@
         .ticker-track {
         animation: scroll-left 35s linear infinite;
         }
+        #crypto-ticker-bar:hover .ticker-track {
+                animation-play-state: paused;
+            }
         @keyframes scroll-left {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -199,10 +202,8 @@
                 <h2 class="text-4xl font-bold mb-2 text-black hover:text-[#0085A1] cursor-pointer">
                   <a href="${article.url}" target="_blank" rel="noopener noreferrer">${article.title}</a>
                 </h2>
-                <div class="text-lg">
-                  ${article.body.length > 255
-                        ? article.body.slice(0, 200).split(' ').slice(0, -1).join(' ') + '...'
-                        : article.body}
+                <div class="text-lg line-clamp-3">
+                    ${article.body}
                 </div>
                 <div class="text-gray-500 py-2">
                   ${convertTime(article.published_on)}
