@@ -1,0 +1,85 @@
+name: Auto-Build Docker Images For Subfolders
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  discover-dockerfiles:
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.find.outputs.dockerfiles }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find all Dockerfiles
+        id: find
+        run: |
+          FILES=$(find . -type f -name 'Dockerfile' | grep -v '^./Dockerfile$' || true)
+          FILES_JSON=$(printf '%s\n' "$FILES" | jq -R . | jq -s .)
+          echo "dockerfiles=$FILES_JSON" >> "$GITHUB_OUTPUT"
+
+
+  changed-dockerfiles:
+    runs-on: ubuntu-latest
+    needs: discover-dockerfiles
+    outputs:
+      changed: ${{ steps.filter.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed Dockerfiles
+        id: filter
+        run: |
+          CHANGED="[]"
+
+          for df in $(echo '${{ needs.discover-dockerfiles.outputs.dockerfiles }}' | jq -r '.[]'); do
+            DIR=$(dirname "$df")
+
+            # Check if folder changed (or if new Dockerfile)
+            if git diff --quiet HEAD~1 HEAD -- "$DIR"; then
+              continue
+            fi
+
+            CHANGED=$(echo "$CHANGED" | jq --arg d "$df" '. + [$d]')
+          done
+
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+      - name: Debug changed
+        run: echo "Changed dockerfiles → ${{ steps.filter.outputs.changed }}"
+
+
+  build-images:
+    needs: changed-dockerfiles
+    if: ${{ needs.changed-dockerfiles.outputs.changed != '[]' }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dockerfile: ${{ fromJson(needs.changed-dockerfiles.outputs.changed) }}
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Compute image name
+        id: img
+        run: |
+          DOCKERFILE="${{ matrix.dockerfile }}"
+          FOLDER=$(dirname "$DOCKERFILE" | sed 's|^\./||')
+          echo "image=python/$FOLDER" >> $GITHUB_OUTPUT
+
+      - name: Call central CI template
+        uses: hitesha1981/ci-templates/.github/workflows/dockerfiles.yml@main
+        with:
+          image_name: ${{ steps.img.outputs.image }}
+          dockerfile_path: ${{ matrix.dockerfile }}
+        secrets:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
