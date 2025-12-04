@@ -11,15 +11,20 @@ jobs:
   discover-dockerfiles:
     runs-on: ubuntu-latest
     outputs:
-      dockerfiles: ${{ steps.find.outputs.dockerfiles }}
+        dockerfiles: ${{ steps.find.outputs.dockerfiles }}
     steps:
       - uses: actions/checkout@v4
 
       - id: find
         run: |
-          FILES=$(find . -type f -name 'Dockerfile' | grep -v '^./Dockerfile$' || true)
-          FILES_JSON=$(printf '%s\n' "$FILES" | jq -R . | jq -s .)
-          echo "dockerfiles=$FILES_JSON" >> "$GITHUB_OUTPUT"
+          # Find all Dockerfiles except root-level one
+          FILES=$(find . -type f -name Dockerfile | grep -v '^./Dockerfile$' || true)
+
+          # Convert to valid JSON array
+          JSON=$(printf '%s\n' $FILES | jq -R . | jq -s .)
+
+          # Write clean JSON to GitHub output
+          echo "dockerfiles=$JSON" >> $GITHUB_OUTPUT
 
   changed-dockerfiles:
     runs-on: ubuntu-latest
