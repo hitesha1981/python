@@ -1,5 +1,6 @@
 FROM python:3.14-slim
 
+
 ENV APP_PORT=8000
 ENV DJANGO_HOST=0.0.0.0
 
