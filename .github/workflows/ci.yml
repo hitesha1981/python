@@ -37,14 +37,31 @@ jobs:
       - id: filter
         run: |
           CHANGED="[]"
+
           for df in $(echo '${{ needs.discover-dockerfiles.outputs.dockerfiles }}' | jq -r '.[]'); do
             DIR=$(dirname "$df")
-            if git diff --quiet HEAD~1 HEAD -- "$DIR"; then
+
+            # SAFE git diff (works even if no HEAD~1 exists)
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              git diff --quiet HEAD~1 HEAD -- "$DIR"
+              DIFF_EXIT=$?
+            else
+              DIFF_EXIT=1
+            fi
+
+            # If no changes, skip
+            if [ $DIFF_EXIT -eq 0 ]; then
               continue
             fi
+
+            # Add to changed array
             CHANGED=$(echo "$CHANGED" | jq --arg d "$df" '. + [$d]')
           done
-          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+          # Compact JSON (must be 1 line!)
+          CHANGED_COMPACT=$(echo "$CHANGED" | jq -c .)
+
+          echo "changed=$CHANGED_COMPACT" >> $GITHUB_OUTPUT
 
   prepare-build:
     needs: changed-dockerfiles
