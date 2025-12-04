@@ -6,4 +6,3 @@ lib
 pyvenv.cfg
 venv/
 bin/
-.env
